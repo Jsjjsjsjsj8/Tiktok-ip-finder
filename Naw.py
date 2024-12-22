@@ -21,14 +21,14 @@ def install_requirements():
 # IP adresini almak için her iki yöntemi de deneyen fonksiyon
 def get_ip_address():
     try:
-        # İlk olarak 'hostname -I' komutunu kullanarak IP adresini al
-        ip_address = subprocess.getoutput("hostname -I").strip()
+        # 'ip addr' komutunu kullanarak IP adresini al
+        ip_address = subprocess.getoutput("ip addr show wlan0 | grep inet | awk '{ print $2 }'").strip()
         if ip_address:
-            return ip_address
+            return ip_address.split('/')[0]  # /mask kısmını çıkar
         else:
             raise Exception("IP adresi alınamadı.")
-    except Exception:
-        # Eğer 'hostname -I' çalışmazsa, socket yöntemiyle IP adresini al
+    except Exception as e:
+        # Eğer 'ip addr' çalışmazsa, socket yöntemiyle IP adresini al
         try:
             hostname = socket.gethostname()
             ip_address = socket.gethostbyname(hostname)
@@ -36,10 +36,10 @@ def get_ip_address():
         except Exception as e:
             return f"Hata: {e}"
 
-# Termux API ile cihazdaki hesapları alma
+# Termux API ile cihazdaki hesapları alma (Alternatif çözüm gerekebilir)
 def get_android_emails():
     try:
-        # Termux API komutunu çalıştır
+        # E-posta hesapları almak için farklı bir yöntem kullanma (Termux izin sorunları olabilir)
         result = subprocess.run(["termux-account"], capture_output=True, text=True)
         accounts = json.loads(result.stdout)
         emails = [account["name"] for account in accounts if "@" in account["name"]]
